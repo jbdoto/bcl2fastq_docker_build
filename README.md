@@ -49,7 +49,7 @@ be imported into your account, and then downloaded at the command line, detailed
     Choose an example, and click the Import button.
 3.  install `bs-cli` and download data
 
-
+```
     brew tap basespace/basespace && brew install bs-cli 
 
     bs auth # follow onscreen prompts to setup shell
@@ -57,6 +57,8 @@ be imported into your account, and then downloaded at the command line, detailed
     bs list runs # grab id
 
     bs download run -i 196529346 -o <some_path>
+
+```
 
 More background on bs-cli here:
 
