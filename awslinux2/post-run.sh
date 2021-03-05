@@ -5,30 +5,18 @@ upload(){
   set -o noglob
 
   local to=$1
-  local files=$2
 
-  for file in ${files}
-  do
+  echo "cd /scratch/results/samples/${OBJECT_NAME}  && aws s3 cp . ${to} --recursive --exclude \"*\" --include \"*.fastq.gz\""
+  cd /scratch/results/samples/${OBJECT_NAME} && aws s3 cp . ${to} --recursive --exclude "*" --include "*.fastq.gz"
 
-    echo "aws s3 cp . ${to} --recursive --exclude \"*\" --include \"${file}\""
-    aws s3 cp . ${to} --recursive --exclude "*" --include "${file}"
+  # https://docs.aws.amazon.com/fsx/latest/LustreGuide/release-files.html
+  # release files from lustre to save space:
+  lfs hsm_release /scratch/results/samples/${OBJECT_NAME}
 
-    # TODO: sync back new zip file to S3 via HSM?
-    #sudo lfs hsm_archive path/to/export/file
-
-  done
 }
 
-# Job results path in job results bucket
-if [[ $STATE_MACHINE_NAME ]]; then
-  jobresults=${JOBRESULTS_BUCKET}/${SAMPLE_ID}/${STATE_MACHINE_NAME}/${EXECUTION_NAME}
-else
-  jobresults=${JOBRESULTS_BUCKET}/${1}
-fi
-
 # Upload outputs post-parent job
-# TODO: figure this part out.
-#upload "s3://${jobresults}/" "${SAMPLE_ID}_results.tar.gz" "/scratch/results/${AWS_BATCH_JOB_ID}/${AWS_BATCH_JOB_ATTEMPT}/${SAMPLE_ID}"
+upload "s3://${JOBRESULTS_BUCKET}/${OBJECT_NAME}/${AWS_BATCH_JOB_ID}/${AWS_BATCH_JOB_ATTEMPT}/"
 
 # Record execution succeeded in CloudWatch
 if [[ $STATE_MACHINE_NAME ]]; then
