@@ -3,8 +3,11 @@ FROM ${BASE_IMAGE}
 
 RUN yum -y update
 RUN yum -y install gettext \
-                       awscli
+                   awscli
+
 RUN yum -y clean all
+
+RUN  amazon-linux-extras install -y lustre2.10
 
 COPY ./pre-run.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/pre-run.sh

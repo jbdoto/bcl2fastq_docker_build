@@ -11,7 +11,12 @@ upload(){
 
   # https://docs.aws.amazon.com/fsx/latest/LustreGuide/release-files.html
   # release files from lustre to save space:
-  lfs hsm_release /scratch/results/samples/${OBJECT_NAME}
+  echo "Releasing files from lustre..."
+  # TODO: Not sure what's up with this currently:
+  # Cannot send HSM request (use of ./Data/Intensities/BaseCalls/14584-Zymo-IndexSet2-NSQ-AllLanes_S123_L003_R1_001.fastq.gz): Operation not permitted
+  # emit full path of file for hsm_release
+  #find "$(pwd -P)" -type f -exec lfs hsm_release {} \;
+  echo "Release complete."
 
 }
 
