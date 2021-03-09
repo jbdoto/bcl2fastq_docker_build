@@ -6,17 +6,27 @@ upload(){
 
   local to=$1
 
-  echo "cd /scratch/results/samples/${OBJECT_NAME}  && aws s3 cp . ${to} --recursive --exclude \"*\" --include \"*.fastq.gz\""
+  echo "Uploading files post-run..."
+  echo "cd /scratch/results/samples/${OBJECT_NAME}  && aws s3 cp . ${to} --recursive --exclude \"*\" --include \"*.fastq.gz\" --include\"*/Stats/*\" --include \"*IndexMetricsOut.bin\""
   cd /scratch/results/samples/${OBJECT_NAME} && aws s3 cp . ${to} --recursive --exclude "*" --include "*.fastq.gz"
+  aws s3 cp ./Data/Intensities/BaseCalls/Stats ${to}/Data/Intensities/BaseCalls/Stats --recursive
+  aws s3 cp ./InterOp/IndexMetricsOut.bin ${to}/InterOp/IndexMetricsOut.bin
 
   # https://docs.aws.amazon.com/fsx/latest/LustreGuide/release-files.html
   # release files from lustre to save space:
   echo "Releasing files from lustre..."
-  # TODO: Not sure what's up with this currently:
-  # Cannot send HSM request (use of ./Data/Intensities/BaseCalls/14584-Zymo-IndexSet2-NSQ-AllLanes_S123_L003_R1_001.fastq.gz): Operation not permitted
   # emit full path of file for hsm_release
-  #find "$(pwd -P)" -type f -exec lfs hsm_release {} \;
+  # can only hsm_release files that were cached from S3...so data produced during the run will cause an error.
+  # we therefore filter out fastq, summary, and IndexMetricsOut.bin files.
+  find "$(pwd -P)" -type f ! -name "*.fastq.gz" ! -wholename "*/Stats/*" ! -name "*IndexMetricsOut.bin" -exec lfs hsm_release {} \;
   echo "Release complete."
+
+  # clean up generated files:
+  echo "cleaning up generated files..."
+  find "$(pwd -P)" -type f -name "*.fastq.gz"  -exec rm -v {} \;
+  find "$(pwd -P)" -type f -wholename "*/Data/Intensities/BaseCalls/Stats/*" -exec rm -v {} \;
+  find "$(pwd -P)" -type f -name "./InterOp/IndexMetricsOut.bin" -exec rm -v {} \;
+  echo "cleanup done."
 
 }
 
