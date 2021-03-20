@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-prepare_workspace(){
+prepare_workspace() {
 
   set -o noglob
 
@@ -18,11 +18,8 @@ prepare_workspace(){
     sleep 10
   done
 
-echo "Preloading filesystem complete."
-  #cp -R /scratch/results/samples/${OBJECT_NAME} /scratch/results/${AWS_BATCH_JOB_ID}/${AWS_BATCH_JOB_ATTEMPT}/
+  echo "Preloading filesystem complete."
 
 }
 
-# Download inputs
-# Skipping this since we're using Lustre.
 prepare_workspace
