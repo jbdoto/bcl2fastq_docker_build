@@ -28,18 +28,14 @@ RUN yum -y update && \
     yum -y install tar \
     gzip \
     bzip2 \
+    bzip2-devel \
     util-linux \
     zlib \
     zlib-devel \
-    zlib1g \
-    zlib1g-dev \
-    zlibc \
-    libc6  \
     gcc \
     gcc-c++ \
     unzip \
-    make \
-    libbz2-dev && \
+    make  && \
     yum clean all
 
 ARG SOURCE
