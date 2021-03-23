@@ -1,0 +1,18 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: bcl2fastqECRRepositoryCreate
+
+Resources:
+  bcl2fastqECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: bcl2fastq
+      Tags:
+        - Key: "Name"
+          Value: "bcl2fastq"
+
+Outputs:
+  Arn:
+    Value: !GetAtt bcl2fastqECRRepository.Arn
+
+
