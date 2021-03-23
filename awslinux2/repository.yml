@@ -11,6 +11,14 @@ Resources:
         - Key: "Name"
           Value: "bcl2fastq"
 
+  bcl2fastqBaseECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: bcl2fastq-base
+      Tags:
+        - Key: "Name"
+          Value: "bcl2fastq-base"
+
 Outputs:
   Arn:
     Value: !GetAtt bcl2fastqECRRepository.Arn
