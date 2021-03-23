@@ -35,6 +35,7 @@ RUN yum -y update && \
     gcc \
     gcc-c++ \
     unzip \
+    wget \
     make  && \
     yum clean all
 
@@ -47,8 +48,8 @@ ENV C_INCLUDE_PATH=/usr/include/x86_64-linux-gnu
 
 ARG ZIP_NAME=bcl2fastq2-v2-20-0-tar.zip
 ARG TAR_NAME=bcl2fastq2-v2.20.0.422-Source.tar.gz
-COPY ./${ZIP_NAME} ${SOURCE}/${ZIP_NAME}
 WORKDIR ${SOURCE}
+RUN wget ftp://webdata2:webdata2@ussd-ftp.illumina.com/downloads/software/bcl2fastq/${ZIP_NAME}
 RUN unzip ${ZIP_NAME} && \
   tar -xzvf ${TAR_NAME} && \
   rm ${ZIP_NAME} ${TAR_NAME}
