@@ -54,8 +54,9 @@ build-docker-image:
 
         # Build image
         - /kaniko/executor
-            --destination bcl2fastq-base
+            --destination $DOCKER_REGISTRY/$IMAGE-base
             --context $CI_PROJECT_DIR/awslinux2
+            --no-push
             --build-arg "CI_JOB_TOKEN=$CI_JOB_TOKEN"
             --log-timestamp
 
@@ -65,7 +66,7 @@ build-docker-image:
             --destination $DOCKER_IMAGE:$CI_COMMIT_SHA
             --destination $DOCKER_IMAGE:$IMAGE_TAG
             --build-arg "CI_JOB_TOKEN=$CI_JOB_TOKEN"
-            --build-arg "BASE_IMAGE=bcl2fastq-base"
+            --build-arg "BASE_IMAGE=$DOCKER_REGISTRY/$IMAGE-base"
             --log-timestamp
             $KANIKO_EXTRA_ARGS
 
