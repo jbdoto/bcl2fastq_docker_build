@@ -66,7 +66,7 @@ build-docker-image:
             --destination $DOCKER_IMAGE:$CI_COMMIT_SHA
             --destination $DOCKER_IMAGE:$IMAGE_TAG
             --build-arg "CI_JOB_TOKEN=$CI_JOB_TOKEN"
-            --build-arg "BASE_IMAGE=$DOCKER_REGISTRY/$IMAGE-base"
+            --build-arg "BASE_IMAGE=$DOCKER_REGISTRY/$IMAGE-base:$IMAGE_TAG"
             --log-timestamp
             $KANIKO_EXTRA_ARGS
 
