@@ -1,0 +1,71 @@
+stages:
+    - build
+
+create-repo:
+    stage: build
+    script:
+        - apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+        - python3 -m ensurepip
+        - pip3 install --no-cache --upgrade pip awscli
+        - aws cloudformation deploy --template-file awslinux2/repository.yml --stack-name bcl2fastqECRRepository --capabilities CAPABILITY_IAM --no-fail-on-empty-changeset
+
+# Build the image with kaniko
+build-docker-image:
+    stage: build
+    image:
+        name: gcr.io/kaniko-project/executor:debug
+        entrypoint: ['']
+    variables:
+        IMAGE_TAG: 1.0.0
+        AWS_DEFAULT_REGION: us-east-1
+        DOCKER_REGISTRY: 353276416433.dkr.ecr.us-east-1.amazonaws.com
+        IMAGE: bcl2fastq
+        KANIKO_EXTRA_ARGS: ''
+    before_script:
+        - /kaniko/executor version
+    script:
+        # Debugging
+        # - set -x
+        # - env
+        # - /kaniko/executor --help
+        # - export KANIKO_EXTRA_ARGS="$KANIKO_EXTRA_ARGS --verbosity debug"
+
+        # Exit on error
+        - set -e
+
+        # Docker Registry Authentication with ecr-login (pre-installed on kaniko 'debug' image)
+        #   https://github.com/awslabs/amazon-ecr-credential-helper
+        - mkdir -p /kaniko/.docker
+        - >
+            echo "{\"credHelpers\": {\"$DOCKER_REGISTRY\": \"ecr-login\"}}" > /kaniko/.docker/config.json
+
+        # verify IMAGE set
+        - if [ -z "$IMAGE" ]; then
+        -   echo "Variable IMAGE must be set!"
+        -   exit 1
+        - fi
+
+        - export DOCKER_IMAGE="$DOCKER_REGISTRY/$IMAGE"
+
+        # Tag master branch builds as latest
+        - if [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+            export KANIKO_EXTRA_ARGS="$KANIKO_EXTRA_ARGS --destination $DOCKER_IMAGE:latest";
+            fi
+
+        # Build image
+        - /kaniko/executor
+            --destination bcl2fastq-base
+            --context $CI_PROJECT_DIR/awslinux2
+            --build-arg "CI_JOB_TOKEN=$CI_JOB_TOKEN"
+            --log-timestamp
+
+        - /kaniko/executor
+            --dockerfile entrypoint.dockerfile
+            --context $CI_PROJECT_DIR/awslinux2
+            --destination $DOCKER_IMAGE:$CI_COMMIT_SHA
+            --destination $DOCKER_IMAGE:$IMAGE_TAG
+            --build-arg "CI_JOB_TOKEN=$CI_JOB_TOKEN"
+            --build-arg "BASE_IMAGE=bcl2fastq-base"
+            --log-timestamp
+            $KANIKO_EXTRA_ARGS
+
