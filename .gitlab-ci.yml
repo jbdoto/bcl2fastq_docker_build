@@ -54,9 +54,9 @@ build-docker-image:
 
         # Build image
         - /kaniko/executor
-            --destination $DOCKER_REGISTRY/$IMAGE-base
+            --destination $DOCKER_REGISTRY/$IMAGE-base:$CI_COMMIT_SHA
+            --destination $DOCKER_REGISTRY/$IMAGE-base:$IMAGE_TAG
             --context $CI_PROJECT_DIR/awslinux2
-            --no-push
             --build-arg "CI_JOB_TOKEN=$CI_JOB_TOKEN"
             --log-timestamp
 
